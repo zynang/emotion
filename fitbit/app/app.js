@@ -2,13 +2,9 @@ import { client_Id, redirect_Uri } from './config.js';
 
 // Ensure the script runs after the page has loaded
 window.onload = async function() {
-    // Your Fitbit app's Client ID
-    const clientId = client_Id; // Replace with your actual Client ID
-  
-    // Your app's Redirect URI
-    const redirectUri = redirect_Uri; // Replace with your actual Redirect URI
-  
-    // Scopes for the data you want to access
+
+    const clientId = client_Id; 
+    const redirectUri = redirect_Uri; 
     const scopes = 'activity heartrate sleep profile';
   
     // Function to generate a random string (for PKCE code verifier and state)
