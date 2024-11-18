@@ -1,10 +1,12 @@
+import { client_Id, redirect_Uri } from './config.js';
+
 // Ensure the script runs after the page has loaded
 window.onload = async function() {
     // Your Fitbit app's Client ID
-    const clientId = '23PRPH'; // Replace with your actual Client ID
+    const clientId = client_Id; // Replace with your actual Client ID
   
     // Your app's Redirect URI
-    const redirectUri = 'https://zynang.github.io/emotion/'; // Replace with your actual Redirect URI, e.g., 'https://yourusername.github.io/yourrepo/'
+    const redirectUri = redirect_Uri; // Replace with your actual Redirect URI
   
     // Scopes for the data you want to access
     const scopes = 'activity heartrate sleep profile';
@@ -92,6 +94,48 @@ window.onload = async function() {
       `;
     }
   
+    // Function to fetch heart rate data from Fitbit API
+    async function getHeartRateData(accessToken) {
+      // Define the API endpoint
+      const apiUrl = 'https://api.fitbit.com/1/user/-/activities/heart/date/today/1d/1min.json';
+      
+      const response = await fetch(apiUrl, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      
+      if (!response.ok) {
+        // Handle HTTP errors
+        const errorData = await response.json();
+        throw new Error(`Error fetching heart rate data: ${errorData.errors[0].message}`);
+      }
+      
+      const heartRateData = await response.json();
+      return heartRateData;
+    }
+  
+    // Function to display the heart rate data on the webpage
+    function displayHeartRateData(heartRateData) {
+      const heartRateDiv = document.getElementById('heart-rate');
+      
+      // Check if intraday data is available
+      if (heartRateData['activities-heart-intraday'] && heartRateData['activities-heart-intraday'].dataset.length > 0) {
+        const dataset = heartRateData['activities-heart-intraday'].dataset;
+        
+        // Create a simple list of heart rate data
+        let html = '<h3>Heart Rate Data</h3><ul>';
+        dataset.forEach(dataPoint => {
+          html += `<li>${dataPoint.time}: ${dataPoint.value} bpm</li>`;
+        });
+        html += '</ul>';
+        
+        heartRateDiv.innerHTML = html;
+      } else {
+        heartRateDiv.innerHTML = '<p>No heart rate data available.</p>';
+      }
+    }
+  
     // Start of the main OAuth flow
     const params = getQueryParams();
   
@@ -105,7 +149,7 @@ window.onload = async function() {
       const storedState = sessionStorage.getItem('oauthState');
   
       // Clear the code and state from the URL for cleanliness
-      window.history.replaceState({}, document.title, '/');
+      window.history.replaceState({}, document.title, redirectUri);
   
       // Verify state
       if (returnedState !== storedState) {
@@ -125,9 +169,18 @@ window.onload = async function() {
             sessionStorage.setItem('accessToken', accessToken);
             sessionStorage.setItem('refreshToken', refreshToken);
   
-            // Fetch data and display
+            // Fetch profile data and display
             const profileData = await getUserProfile(accessToken);
             displayProfile(profileData);
+  
+            // Fetch heart rate data and display
+            try {
+              const heartRateData = await getHeartRateData(accessToken);
+              displayHeartRateData(heartRateData);
+            } catch (error) {
+              console.error('Error fetching heart rate data:', error);
+              alert('Error fetching heart rate data. Please try again.');
+            }
           } else {
             console.error('Error obtaining access token:', tokenData);
             alert('Error obtaining access token. Please try again.');
