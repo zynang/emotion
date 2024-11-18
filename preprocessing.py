@@ -53,12 +53,4 @@ X_bvp, X_eda, y_bvp, y_eda = load_wesad_data(subject_files)
 X_bvp_train, X_bvp_test, y_bvp_train, y_bvp_test = train_test_split(X_bvp, y_bvp, random_state=0, train_size=.8)
 X_eda_train, X_eda_test, y_eda_train, y_eda_test = train_test_split(X_eda, y_eda, random_state=0, train_size=.8)
 
-# print("BVP Train Shape:", X_bvp_train.shape)
-# print("BVP Test Shape:", X_bvp_test.shape)
-# print("EDA Train Shape:", X_eda_train.shape)
-# print("EDA Test Shape:", X_eda_test.shape)
-# print("Labels BVP Train Shape:", y_bvp_train.shape)
-# print("Labels BVP Test Shape:", y_bvp_test.shape)
-# print("Labels EDA Train Shape:", y_eda_train.shape)
-# print("Labels EDA Test Shape:", y_eda_test.shape)
 
